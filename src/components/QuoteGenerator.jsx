@@ -1,5 +1,7 @@
-// src/QuoteGenerator.js
-import React, { useState } from 'react';
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { cn } from "../utils/ch.ts"; 
 
 const quotes = [
   { quote: "May the Force be with you.", author: "Star Wars" },
@@ -36,12 +38,9 @@ const quotes = [
   { quote: "I'm walking here! I'm walking here!", author: "Midnight Cowboy" },
   { quote: "Carpe diem. Seize the day, boys.", author: "Dead Poets Society" },
   { quote: "Nobody puts Baby in a corner.", author: "Dirty Dancing" },
-  { quote: "Here's looking at you, kid.", author: "Casablanca" },
   { quote: "You're tearing me apart, Lisa!", author: "The Room" },
-  { quote: "I'll be back.", author: "The Terminator" },
   { quote: "Life is like a box of chocolates. You never know what you're gonna get.", author: "Forrest Gump" },
   { quote: "Keep the change, ya filthy animal.", author: "Home Alone" },
-  { quote: "You can't handle the truth!", author: "A Few Good Men" },
   { quote: "Mama says, 'Stupid is as stupid does.'", author: "Forrest Gump" },
   { quote: "Say 'hello' to my little friend!", author: "Scarface" },
   { quote: "I'm too old for this shit.", author: "Lethal Weapon" },
@@ -51,8 +50,47 @@ const quotes = [
   { quote: "Keep your friends close, but your enemies closer.", author: "The Godfather Part II" },
   { quote: "To infinity and beyond!", author: "Toy Story" },
   { quote: "There's no place like home.", author: "The Wizard of Oz" },
-  { quote: "I'm saying that if there is some geezer up there with a big white beard, he's a world heavyweight c*nt", author: "Billy Butcher"},
 ];
+
+const FlipWords = ({ words, className }) => {
+  const [currentWord, setCurrentWord] = useState(words[0]);
+  const [key, setKey] = useState(0);
+
+  const startAnimation = useCallback(() => {
+    const word = words[Math.floor(Math.random() * words.length)];
+    setCurrentWord(word);
+    setKey(prevKey => prevKey + 1); 
+  }, [words]);
+
+  useEffect(() => {
+    startAnimation();
+  }, [startAnimation]);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        key={key} 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeInOut", type: "spring", stiffness: 100, damping: 10 }}
+        exit={{ opacity: 0, y: -40, x: 40, filter: "blur(8px)", scale: 2, position: "absolute" }}
+        className={cn("z-10 inline-block relative text-left text-neutral-900 dark:text-neutral-100 px-2", className)}
+      >
+        {currentWord.split(" ").map((word, index) => (
+          <motion.span
+            key={word + index}
+            initial={{ opacity: 0, y: 10, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: index * 0.08, duration: 0.4 }}
+            className="inline-block mr-1"
+          >
+            {word}
+          </motion.span>
+        ))}
+      </motion.div>
+    </AnimatePresence>
+  );
+};
 
 function QuoteGenerator() {
   const [currentQuote, setCurrentQuote] = useState(quotes[0]);
@@ -63,9 +101,9 @@ function QuoteGenerator() {
   };
 
   return (
-    <div className="text-center">
-      <p className="text-2xl italic mb-4">"{currentQuote.quote}"</p>
-      <p className="text-lg font-semibold mb-8">- {currentQuote.author}</p>
+    <div className="text-center flex flex-col items-center">
+      <FlipWords words={[currentQuote.quote]} className="text-xl italic mb-4" />
+      <FlipWords words={[currentQuote.author]} className="text-lg font-semibold mb-8" />
       <button
         className="px-6 py-3 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded"
         onClick={generateQuote}
