@@ -23,6 +23,9 @@ function App() {
         <h1 className="text-4xl font-bold text-white mb-8"> Inspirational Quotes from Celebrity</h1>
         <QuoteGenerator />
       </header>
+      <footer className="text-center text-white ">
+        <p class="italic hover:not-itaic">Please turn off your drak reader extension</p>
+      </footer>
       </motion.div>
     </AuroraBackground>
   );
